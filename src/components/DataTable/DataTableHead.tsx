@@ -47,8 +47,6 @@ export const DataTableHead: React.FunctionComponent<Props>
       <TableRow>
         {
           columns.map(column => {
-
-
             return (
               <StyledTableHeadCell
                 key={column.id}

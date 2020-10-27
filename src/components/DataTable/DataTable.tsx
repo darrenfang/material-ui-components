@@ -24,7 +24,9 @@
  */
 
 import * as React from 'react'
-import { Box, makeStyles, Paper, TableContainer, Theme } from '@material-ui/core'
+import { useState, useEffect } from 'react'
+import { remove } from 'lodash'
+import { Checkbox, Box, makeStyles, Paper, TableContainer, Theme } from '@material-ui/core'
 import Table from '@material-ui/core/Table'
 import { createStyles } from '@material-ui/styles'
 import { IDataTableColumn } from './IDataTableColumn'
@@ -38,6 +40,9 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       width: '100%'
+    },
+    checkAll: {
+      color: '#FFF'
     }
   })
 )
@@ -52,6 +57,7 @@ interface Props {
   onPaginate?: (page: number, size: number) => void
   pagination?: IPagination
   hidePagination?: boolean
+  onCheck?: (values: (string | number)[]) => void
 }
 
 export const DataTable: React.FunctionComponent<Props>
@@ -64,10 +70,56 @@ export const DataTable: React.FunctionComponent<Props>
        data,
        onPaginate,
        pagination,
-       hidePagination
+       hidePagination,
+       onCheck
      }) => {
 
   const classes = useStyles()
+  const [checkAll, setCheckAll] = useState(false)
+  const [checkedValues, setCheckedValues] = useState([] as (string | number)[])
+
+  const checkAllHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCheckAll(!checkAll)
+    if(event.target.checked){
+      const values = data.map(item => item._key)
+      setCheckedValues(values)
+    }else{
+      setCheckedValues([])
+    }
+  }
+
+  let tableColumns = columns
+  let tableData = data
+
+  if(onCheck){
+    const checkAllElement: IDataTableColumn = {
+       id: 'checkElement',
+       label: (
+         <Checkbox
+           className={classes.checkAll}
+           checked={checkAll}
+           onChange={checkAllHandler}
+           disabled={loading}
+         />
+       ),
+       minWidth: 50,
+       width: 50,
+       align: 'center'
+     }
+
+    tableColumns = [checkAllElement].concat(columns)
+
+    tableData.forEach(item=>{
+      const element = (<CheckElement item={item} checkedValues={checkedValues} onCheck={(values) => setCheckedValues(values)} />)
+      item.checkElement = element
+    })
+  }
+
+  useEffect(function(){
+    if(onCheck){
+      onCheck(checkedValues)
+    }
+  }, [checkedValues])
 
   const hasData = data && data.length > 0
 
@@ -75,12 +127,12 @@ export const DataTable: React.FunctionComponent<Props>
     <Paper>
       <TableContainer component={Box} className={className}>
         <Table stickyHeader aria-label="sticky table" className={classes.root}>
-          <DataTableHead columns={columns}/>
+          <DataTableHead columns={tableColumns}/>
           <DataTableBody
             loading={loading}
-            columns={columns}
+            columns={tableColumns}
             skeletonHeight={skeletonHeight}
-            data={data}
+            data={tableData}
           />
         </Table>
       </TableContainer>
@@ -93,5 +145,38 @@ export const DataTable: React.FunctionComponent<Props>
         />
       }
     </Paper>
+  )
+}
+
+interface CheckElementProps{
+  item: IData
+  checkedValues: (string | number)[]
+  onCheck: (checkedValues: (string | number)[]) => void
+}
+
+const CheckElement: React.FunctionComponent<CheckElementProps>
+= ({
+    item,
+    checkedValues,
+    onCheck
+  }) =>{
+
+  const isChecked = checkedValues.indexOf(item._key) !== -1
+
+  const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+   if(event.target.checked){
+      const values = checkedValues.concat(item._key)
+      onCheck(values)
+    }else{
+      const values = remove(checkedValues, function(n){ return n !== item._key})
+      onCheck(values)
+    }
+  }
+
+  return (
+    <Checkbox
+      checked={isChecked}
+      onChange={changeHandler}
+    />
   )
 }

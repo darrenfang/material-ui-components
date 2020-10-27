@@ -22,13 +22,13 @@
  * SOFTWARE.
  *
  */
+import { ReactElement } from 'react'
 
 export interface IDataTableColumn {
   id: string
-  label: string
+  label: string | ReactElement
   minWidth?: number
   maxWidth?: number
   width?: number
   align?: 'left' | 'right' | 'center'
 }
-
