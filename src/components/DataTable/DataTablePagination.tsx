@@ -100,8 +100,13 @@ export const DataTablePagination: React.FunctionComponent<Props>
   return (
     <React.Fragment>
       <Toolbar>
-        <Grid container className={classes.footer} spacing={1} alignItems="center"
-              justify="flex-start">
+        <Grid
+          container
+          className={classes.footer}
+          spacing={1}
+          alignItems="center"
+          justifyContent="flex-start"
+        >
           {
             options.length > 1 && (
               <Grid

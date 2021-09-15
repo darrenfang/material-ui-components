@@ -117,7 +117,7 @@ export const DataGrid: React.FunctionComponent<Props>
       <Grid
         alignItems="center"
         container
-        justify="space-between"
+        justifyContent="space-between"
       >
         {
           data.map((item, index) => {

@@ -27,7 +27,7 @@
  */
 
 import * as React from 'react'
-import * as classNames from 'classnames'
+import classNames from 'classnames'
 import { createStyles, makeStyles } from '@material-ui/styles'
 import { Chip, Paper, Theme } from '@material-ui/core'
 import { IFilterData } from './IFilterData'
